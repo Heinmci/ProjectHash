@@ -6,4 +6,26 @@
 
 int main() {
 	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
+	std::cout << "Bob is God" << std::endl;
 }
