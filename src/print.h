@@ -5,8 +5,10 @@
 
 class Print {
 	public:
-		void print(std::string message);
+		void print(std::string message, bool);
+		Print();
 	private: 
 		std::mutex print_mutex;
+		bool can_write;
 
 };

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <cmath>
 #include "sha.h"
 #include "print.h"
 
@@ -20,6 +21,9 @@ Print* print;
 void findPwd(std::string,int, char, int);
 bool matches_hash(std::string);
 void getWordsOfDifferentLength(char, int);
+std::string get_time_message();
+std::string get_word_message(std::string);
+void found_match(std::string);
 
 int main( int argc, char *argv[] ) {
 	print = new Print();
@@ -41,14 +45,11 @@ int main( int argc, char *argv[] ) {
 }
 
 void getWordsOfDifferentLength(char letters, int length) {
-	//std::cout << letters << std::endl;
 	for(int i = 1; i < 100; i++) {
 		std::string word(i, '*');
 		std::string message = "Testing word of length: " + std::to_string(i) + " | starting with letter: " + letters;
-		print->print(message);
-		//std::cout << "Testing word of length: " << i << " starting with letter:" << letters << std::endl;
+		print->print(message, true);
 		for(int j = 0; j < 1; j++) {
-			//std::cout << word << std::endl;
 			findPwd(word,i, letters, 0);
 		} 
 	}
@@ -57,16 +58,10 @@ void getWordsOfDifferentLength(char letters, int length) {
 
 void findPwd(std::string word, int max_depth, char letter, int current_depth) {
     if (current_depth == max_depth) {
-    	//std::cout << word << std::endl;
     	bool is_match = matches_hash(word);
 		if (is_match) {
-			std::cout << "Your secret word is :" << word << std::endl; 
-			double end = omp_get_wtime();
-		    double elapsed = end - begin;
-		    std::cout << "elapsed=" << elapsed << std::endl;
-			exit(EXIT_SUCCESS);
+			found_match(word);
 		}
-		//exit(EXIT_SUCCESS);
         return;
     }
     for (int i = 0; i < dict.length(); i++) {
@@ -79,6 +74,27 @@ void findPwd(std::string word, int max_depth, char letter, int current_depth) {
         	findPwd(word, max_depth, letter, current_depth + 1);
     	}
     }
+}
+
+void found_match(std::string word) {
+	std::string final_message = get_word_message(word) + get_time_message();
+	print->print(final_message, false);
+	exit(EXIT_SUCCESS);
+}
+
+std::string get_time_message() {
+	double end = omp_get_wtime();
+    double elapsed = end - begin;
+    int minutes = (int)elapsed / 60;
+    int seconds = (int)elapsed % 60;
+    double test = (elapsed - floor(elapsed));
+    int milliseconds = floor(test * 100);
+    std::string message = "Time elapsed = " + std::to_string(minutes) + " minutes, " + std::to_string(seconds) + " seconds, " + std::to_string(milliseconds) + " milliseconds.";
+    return message;
+}
+
+std::string get_word_message(std::string word) {
+	return "Your secret word is: " + word + "\n"; 
 }
 
 bool matches_hash(std::string word_to_test) {
