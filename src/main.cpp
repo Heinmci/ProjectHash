@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <cmath>
+#include <vector>
 #include "sha.h"
 #include "print.h"
 
@@ -20,10 +21,11 @@ Print* print;
 
 void findPwd(std::string,int, char, int);
 bool matches_hash(std::string);
-void getWordsOfDifferentLength(char, int);
+void getWordsOfDifferentLength(std::vector<char>, int);
 std::string get_time_message();
 std::string get_word_message(std::string);
 void found_match(std::string);
+std::vector<int> get_nb_chars_per_thread(int);
 
 int main( int argc, char *argv[] ) {
 	print = new Print();
@@ -33,8 +35,17 @@ int main( int argc, char *argv[] ) {
 
 	std::thread myThreads[nb_threads];
 	begin = omp_get_wtime();
+	std::vector<int> nb_chars = get_nb_chars_per_thread(nb_threads);
+
+	int current_index = 0;
 	for(int i = 0; i < nb_threads; i++) {
-        myThreads[i] = std::thread(&getWordsOfDifferentLength, dict.at(i), 1);
+		int nb_letters = nb_chars.at(i);
+		std::vector<char> letters = {};
+		for(int j = 0; j < nb_letters; j++) {
+			letters.push_back(dict.at(current_index));
+			current_index++;
+		}
+        myThreads[i] = std::thread(&getWordsOfDifferentLength, letters, 1);
     }
 
     for(int i = 0; i < nb_threads; i++) {
@@ -44,13 +55,32 @@ int main( int argc, char *argv[] ) {
     
 }
 
-void getWordsOfDifferentLength(char letters, int length) {
+std::vector<int> get_nb_chars_per_thread(int nb_threads) {
+	int dict_length = dict.length();
+
+	int default_nb_of_letters = floor(dict_length / nb_threads);
+	int remaining_letters = dict_length % nb_threads;
+
+	std::vector<int> nb_chars = {};
+
+	for(int i = 0; i < nb_threads; i++) {
+		int nb_chars_for_thread = default_nb_of_letters;
+		if (remaining_letters > 0) {
+			nb_chars_for_thread += 1;
+			remaining_letters -= 1;
+		}
+		nb_chars.push_back(nb_chars_for_thread);
+	}
+	return nb_chars;
+}
+
+void getWordsOfDifferentLength(std::vector<char> letters, int length) {
 	for(int i = 1; i < 100; i++) {
 		std::string word(i, '*');
-		std::string message = "Testing word of length: " + std::to_string(i) + " | starting with letter: " + letters;
-		print->print(message, true);
-		for(int j = 0; j < 1; j++) {
-			findPwd(word,i, letters, 0);
+		for(char letter: letters) {
+			std::string message = "Testing word of length: " + std::to_string(i) + " | starting with letter: " + letter;
+			print->print(message, true);
+			findPwd(word,i, letter, 0);
 		} 
 	}
 }
