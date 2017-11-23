@@ -5,10 +5,14 @@
 #include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include "sha.h"
+#include "print.h"
 
 std::string argument_hash;
 std::string dict = "abcdefghijklmnopqrstuvwxyz 0123456789";
+double begin;
+Print* print;
 
 /* g++ -std=c++11 -pthread *.cpp*/
 /* Need to lowercase the argument hash input*/
@@ -18,12 +22,13 @@ bool matches_hash(std::string);
 void getWordsOfDifferentLength(char, int);
 
 int main( int argc, char *argv[] ) {
+	print = new Print();
 
 	argument_hash = argv[2];
 	int nb_threads = atoi(argv[1]);
 
 	std::thread myThreads[nb_threads];
-
+	begin = omp_get_wtime();
 	for(int i = 0; i < nb_threads; i++) {
         myThreads[i] = std::thread(&getWordsOfDifferentLength, dict.at(i), 1);
     }
@@ -31,12 +36,17 @@ int main( int argc, char *argv[] ) {
     for(int i = 0; i < nb_threads; i++) {
         myThreads[i].join();
     }
+
+    
 }
 
 void getWordsOfDifferentLength(char letters, int length) {
 	//std::cout << letters << std::endl;
 	for(int i = 1; i < 100; i++) {
 		std::string word(i, '*');
+		std::string message = "Testing word of length: " + std::to_string(i) + " | starting with letter: " + letters;
+		print->print(message);
+		//std::cout << "Testing word of length: " << i << " starting with letter:" << letters << std::endl;
 		for(int j = 0; j < 1; j++) {
 			//std::cout << word << std::endl;
 			findPwd(word,i, letters, 0);
@@ -51,6 +61,9 @@ void findPwd(std::string word, int max_depth, char letter, int current_depth) {
     	bool is_match = matches_hash(word);
 		if (is_match) {
 			std::cout << "Your secret word is :" << word << std::endl; 
+			double end = omp_get_wtime();
+		    double elapsed = end - begin;
+		    std::cout << "elapsed=" << elapsed << std::endl;
 			exit(EXIT_SUCCESS);
 		}
 		//exit(EXIT_SUCCESS);
