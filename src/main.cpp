@@ -12,7 +12,7 @@
 #include "print.h"
 
 std::string argument_hash;
-std::string dict = "abcdefghijklmnopqrstuvwxyz 0123456789";
+std::string dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
 double begin;
 Print* print;
 
