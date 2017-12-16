@@ -1,5 +1,8 @@
 #include <iostream>
 #include <queue>
+#include <iomanip>
+#include <sstream>
+#include <openssl/sha.h>
 #include <thread>
 #include <cassert>
 #include <mutex>
@@ -8,7 +11,7 @@
 #include <omp.h>
 #include <cmath>
 #include <vector>
-#include "sha.h"
+
 #include "print.h"
 
 std::string argument_hash;
@@ -18,7 +21,7 @@ Print* print;
 
 /* g++ -std=c++11 -pthread *.cpp*/
 /* Need to lowercase the argument hash input*/
-
+std::string sha256(std::string);
 void findPwd(std::string,int, char, int);
 bool matches_hash(std::string);
 void getWordsOfDifferentLength(std::vector<char>, int);
@@ -78,8 +81,6 @@ void getWordsOfDifferentLength(std::vector<char> letters, int length) {
 	for(int i = 1; i < 100; i++) {
 		std::string word(i, '*');
 		for(char letter: letters) {
-			std::string message = "Testing word of length: " + std::to_string(i) + " | starting with letter: " + letter;
-			print->print(message, true);
 			findPwd(word,i, letter, 0);
 		} 
 	}
@@ -128,6 +129,7 @@ std::string get_word_message(std::string word) {
 }
 
 bool matches_hash(std::string word_to_test) {
+
 	std::string test_hash = sha256(word_to_test);
 
 	if (argument_hash == test_hash) {
@@ -137,3 +139,17 @@ bool matches_hash(std::string word_to_test) {
 	return false;
 }
 
+std::string sha256(const std::string str)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+    std::stringstream ss;
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+    return ss.str();
+}

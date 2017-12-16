@@ -46,5 +46,7 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 build
+Release
+.vscode
 
 # End of https://www.gitignore.io/api/c++,cmake
