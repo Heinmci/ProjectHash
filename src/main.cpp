@@ -7,6 +7,7 @@
 #include <cassert>
 #include <mutex>
 #include <stdio.h>
+#include <algorithm>
 #include <stdlib.h>
 #include <omp.h>
 #include <cmath>
@@ -25,7 +26,6 @@ std::string sha256(std::string);
 void findPwd(std::string,int, char, int);
 bool matches_hash(std::string);
 void getWordsOfDifferentLength(std::vector<char>, int);
-std::string get_time_message();
 std::string get_word_message(std::string);
 void found_match(std::string);
 std::vector<int> get_nb_chars_per_thread(int);
@@ -34,10 +34,10 @@ int main( int argc, char *argv[] ) {
 	print = new Print();
 
 	argument_hash = argv[2];
+	std::transform(argument_hash.begin(), argument_hash.end(), argument_hash.begin(), ::tolower);
 	int nb_threads = atoi(argv[1]);
 
 	std::thread myThreads[nb_threads];
-	begin = omp_get_wtime();
 	std::vector<int> nb_chars = get_nb_chars_per_thread(nb_threads);
 
 	int current_index = 0;
@@ -108,24 +108,13 @@ void findPwd(std::string word, int max_depth, char letter, int current_depth) {
 }
 
 void found_match(std::string word) {
-	std::string final_message = get_word_message(word) + get_time_message();
+	std::string final_message = get_word_message(word);
 	print->print(final_message, false);
 	exit(EXIT_SUCCESS);
 }
 
-std::string get_time_message() {
-	double end = omp_get_wtime();
-    double elapsed = end - begin;
-    int minutes = (int)elapsed / 60;
-    int seconds = (int)elapsed % 60;
-    double test = (elapsed - floor(elapsed));
-    int milliseconds = floor(test * 100);
-    std::string message = "Time elapsed = " + std::to_string(minutes) + " minutes, " + std::to_string(seconds) + " seconds, " + std::to_string(milliseconds) + " milliseconds.";
-    return message;
-}
-
 std::string get_word_message(std::string word) {
-	return "Your secret word is: " + word + "\n"; 
+	return word; 
 }
 
 bool matches_hash(std::string word_to_test) {
